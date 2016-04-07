@@ -19,7 +19,7 @@ public class ViewClicksActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_clicks);
-        dbHelper = new DatabaseHelper(getApplicationContext());
+        dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         Cursor cursor = dbHelper.getAllClicks();
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.list_item, cursor, new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP}, new int[] {R.id.list_item});
         ListView listView = (ListView) findViewById(R.id.clickList);

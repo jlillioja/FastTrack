@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mDbHelper = new DatabaseHelper(this);
+        mDbHelper = DatabaseHelper.getInstance(getApplicationContext());
     }
 
     public void fastTrack(View view) {

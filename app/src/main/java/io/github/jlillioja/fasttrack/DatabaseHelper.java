@@ -10,6 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract {
 
+    private static DatabaseHelper mInstance;
+
     private SQLiteDatabase db;
 
     private static final String SQL_CREATE =
@@ -22,7 +24,14 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     private static final String SQL_DELETE =
             "DROP TABLE IF EXISTS " + Click.TABLE_NAME;
 
-    public DatabaseHelper(Context context) {
+    public static DatabaseHelper getInstance(Context context) {
+        if (mInstance == null) {
+            mInstance = new DatabaseHelper(context);
+        }
+        return mInstance;
+    }
+
+    private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         db = getWritableDatabase();
     }
