@@ -4,15 +4,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * Created by Jacob on 4/2/2016.
  */
 public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract {
 
-    private static DatabaseHelper mInstance;
-
-    private SQLiteDatabase db;
+    private static DatabaseHelper sInstance;
+    private static String LOG_TAG = "DatabaseHelper";
 
     private static final String SQL_CREATE =
             "CREATE TABLE "+
@@ -24,20 +24,26 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     private static final String SQL_DELETE =
             "DROP TABLE IF EXISTS " + Click.TABLE_NAME;
 
-    public static DatabaseHelper getInstance(Context context) {
-        if (mInstance == null) {
-            mInstance = new DatabaseHelper(context);
+    public static synchronized DatabaseHelper getInstance(Context context) {
+        if (sInstance == null) {
+            Log.d(LOG_TAG, "Creating DatabaseHelper");
+            sInstance = new DatabaseHelper(context.getApplicationContext());
         }
-        return mInstance;
+        return sInstance;
     }
 
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        db = getWritableDatabase();
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE);
+    }
+
+    public void recreate() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(SQL_DELETE);
         db.execSQL(SQL_CREATE);
     }
 
@@ -48,6 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     }
 
     public void insertTimestamp() {
+        SQLiteDatabase db = getWritableDatabase();
         db.execSQL("INSERT INTO " + Click.TABLE_NAME + " (" + Click.COLUMN_NAME_TIMESTAMP + ") VALUES (datetime())");
     }
 
