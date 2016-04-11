@@ -28,8 +28,9 @@ public class ViewClicksActivity extends AppCompatActivity {
 
     private void refresh() {
         Cursor cursor = mDb.getAllClicks();
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.list_item, cursor, new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP}, new int[] {R.id.list_item});
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.list_item, cursor, new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP}, new int[] {R.id.list_item}, 1);
         ListView listView = (ListView) findViewById(R.id.clickList);
+        assert listView != null; //At the suggestion of Android Studio
         listView.setAdapter(adapter);
     }
 
