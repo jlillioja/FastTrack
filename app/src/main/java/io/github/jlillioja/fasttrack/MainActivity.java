@@ -11,6 +11,7 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper mDbHelper;
+    private final int agentID = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void fastTrack(View view) {
-        mDbHelper.insertTimestamp();
+        mDbHelper.insertTimestamp(agentID);
     }
 
     public void viewClicks(View view) {

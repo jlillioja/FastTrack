@@ -14,15 +14,27 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     private static DatabaseHelper sInstance;
     private static String LOG_TAG = "DatabaseHelper";
 
-    private static final String SQL_CREATE =
-            "CREATE TABLE "+
-            Click.TABLE_NAME+
-            " (" +
-            Click._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            Click.COLUMN_NAME_TIMESTAMP + " TIMESTAMP)";
+    //TODO: Consider abstracting SQL_CREATE statements for DRYness
 
-    private static final String SQL_DELETE =
+    private static final String SQL_CREATE_CLICKS =
+            "CREATE TABLE " +
+                    Click.TABLE_NAME +
+                    " (" +
+                    Click._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    Click.COLUMN_NAME_TIMESTAMP + " TIMESTAMP, " +
+                    Click.COLUMN_NAME_AGENT + " INTEGER)";
+
+    private static final String SQL_CREATE_AGENTS =
+            "CREATE TABLE " +
+                    Agent.TABLE_NAME +
+                    " (" +
+                    Agent._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    Agent.COLUMN_NAME_AGENT + " TEXT)";
+
+    private static final String SQL_DELETE_CLICKS =
             "DROP TABLE IF EXISTS " + Click.TABLE_NAME;
+    private static final String SQL_DELETE_AGENTS =
+            "DROP TABLE IF EXISTS " + Agent.TABLE_NAME;
 
     public static synchronized DatabaseHelper getInstance(Context context) {
         if (sInstance == null) {
@@ -38,19 +50,34 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE);
+        db.execSQL(SQL_CREATE_CLICKS);
+        db.execSQL(SQL_CREATE_AGENTS);
+
+    }
+
+    public void recreate(SQLiteDatabase db) {
+        db.execSQL(SQL_DELETE_CLICKS);
+        db.execSQL(SQL_DELETE_AGENTS);
+        onCreate(db);
     }
 
     public void recreate() {
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL(SQL_DELETE);
-        db.execSQL(SQL_CREATE);
+        recreate(getWritableDatabase());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(SQL_DELETE);
-        onCreate(db);
+        recreate(db);
+    }
+
+    public void insertTimestamp(int agentID) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO " +
+                Click.TABLE_NAME + " (" +
+                Click.COLUMN_NAME_TIMESTAMP + ", " +
+                Click.COLUMN_NAME_AGENT + ") VALUES " +
+                "(datetime(), " +
+                String.valueOf(agentID) + ")");
     }
 
     public void insertTimestamp() {
@@ -59,6 +86,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     }
 
     public Cursor getAllClicks() {
-        return this.getReadableDatabase().rawQuery("SELECT * FROM "+Click.TABLE_NAME, null);
+        return this.getReadableDatabase().rawQuery("SELECT * FROM " + Click.TABLE_NAME, null);
     }
 }

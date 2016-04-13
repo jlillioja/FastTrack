@@ -24,8 +24,9 @@ public class FastTrackService extends IntentService {
     @Override
     public void onHandleIntent(Intent intent) {
         Log.d(LOG_TAG, "Handling intent");
+        int agentID = intent.getIntExtra(DatabaseContract.Agent._ID, 0);
         DatabaseHelper db = DatabaseHelper.getInstance(this);
-        db.insertTimestamp();
+        db.insertTimestamp(agentID);
     }
 
 }
