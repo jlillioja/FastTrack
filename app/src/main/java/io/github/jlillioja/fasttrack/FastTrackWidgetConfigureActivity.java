@@ -16,6 +16,7 @@ public class FastTrackWidgetConfigureActivity extends Activity {
 
     private static final String PREFS_NAME = "io.github.jlillioja.fasttrack.FastTrackWidget";
     private static final String PREF_PREFIX_KEY = "appwidget_";
+    private static final String PREF_AGENT_KEY = "agentID_";
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     EditText mAppWidgetText;
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -25,6 +26,7 @@ public class FastTrackWidgetConfigureActivity extends Activity {
             // When the button is clicked, store the string locally
             String widgetText = mAppWidgetText.getText().toString();
             saveTitlePref(context, mAppWidgetId, widgetText);
+            DatabaseHelper.getInstance(context).insertAgent(widgetText, mAppWidgetId);
 
             // It is the responsibility of the configuration activity to update the app widget
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -94,5 +96,7 @@ public class FastTrackWidgetConfigureActivity extends Activity {
 
         mAppWidgetText.setText(loadTitlePref(FastTrackWidgetConfigureActivity.this, mAppWidgetId));
     }
+
+
 }
 

@@ -2,8 +2,10 @@ package io.github.jlillioja.fasttrack;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
 /**
@@ -29,7 +31,8 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
                     Agent.TABLE_NAME +
                     " (" +
                     Agent._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    Agent.COLUMN_NAME_AGENT + " TEXT)";
+                    Agent.COLUMN_NAME_AGENT + " TEXT, " +
+                    Agent.COLUMN_NAME_WIDGETID + " INTEGER)";
 
     private static final String SQL_DELETE_CLICKS =
             "DROP TABLE IF EXISTS " + Click.TABLE_NAME;
@@ -72,17 +75,28 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
 
     public void insertTimestamp(int agentID) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO " +
-                Click.TABLE_NAME + " (" +
-                Click.COLUMN_NAME_TIMESTAMP + ", " +
-                Click.COLUMN_NAME_AGENT + ") VALUES " +
-                "(datetime(), " +
-                String.valueOf(agentID) + ")");
+        //INSERT INTO CLICKS (TIMESTAMP, AGENT) VALUES (datetime(), agentID)
+        db.execSQL("INSERT INTO "+Click.TABLE_NAME+" ("+Click.COLUMN_NAME_TIMESTAMP+", "+Click.COLUMN_NAME_AGENT+") VALUES (datetime(), "+String.valueOf(agentID)+")");
     }
 
     public void insertTimestamp() {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("INSERT INTO " + Click.TABLE_NAME + " (" + Click.COLUMN_NAME_TIMESTAMP + ") VALUES (datetime())");
+    }
+
+    public void insertAgent(String agent, int widgetId) {
+        SQLiteDatabase db = getWritableDatabase();
+        //INSERT INTO agents (agent_name, widgetID) VALUES (agent, widgetId)
+        db.execSQL("INSERT INTO "+Agent.TABLE_NAME+" ("+Agent.COLUMN_NAME_AGENT+", "+Agent.COLUMN_NAME_WIDGETID+") VALUES ("+agent+", "+widgetId+")");
+    }
+
+    //Map from widgetId that a widget has to the agentId it needs
+    public int getAgentId(int widgetId) {
+        SQLiteDatabase db = getReadableDatabase();
+        //SELECT _id FROM agents WHERE WIDGETID = widgetId
+        //Should return a result set with 1 row and 1 column
+        Cursor cursor = db.rawQuery("SELECT ? FROM ? WHERE ? = ?", new String[]{Agent._ID, Agent.TABLE_NAME, Agent.COLUMN_NAME_WIDGETID, String.valueOf(widgetId)});
+        return cursor.getInt(0);
     }
 
     public Cursor getAllClicks() {

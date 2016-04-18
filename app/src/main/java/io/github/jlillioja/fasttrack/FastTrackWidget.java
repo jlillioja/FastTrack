@@ -22,9 +22,11 @@ public class FastTrackWidget extends AppWidgetProvider {
 
     public void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 
-        CharSequence widgetText = FastTrackWidgetConfigureActivity.loadTitlePref(context, appWidgetId);
+        String widgetText = FastTrackWidgetConfigureActivity.loadTitlePref(context, appWidgetId);
+        int agentID = DatabaseHelper.getInstance(context).getAgentId(appWidgetId);
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.fast_track_widget);
+        views.setTextViewText(R.id.widgetButton, widgetText);
         Intent intent = new Intent(context, FastTrackService.class);
         intent.putExtra(DatabaseContract.Agent._ID, agentID);
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
