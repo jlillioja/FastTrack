@@ -1,5 +1,6 @@
 package io.github.jlillioja.fasttrack;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
@@ -87,16 +88,24 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     public void insertAgent(String agent, int widgetId) {
         SQLiteDatabase db = getWritableDatabase();
         //INSERT INTO agents (agent_name, widgetID) VALUES (agent, widgetId)
-        db.execSQL("INSERT INTO "+Agent.TABLE_NAME+" ("+Agent.COLUMN_NAME_AGENT+", "+Agent.COLUMN_NAME_WIDGETID+") VALUES ("+agent+", "+widgetId+")");
+        ContentValues values = new ContentValues();
+        values.put(Agent.COLUMN_NAME_AGENT, agent);
+        values.put(Agent.COLUMN_NAME_WIDGETID, widgetId);
+        db.insert(Agent.TABLE_NAME, null, values);
     }
 
     //Map from widgetId that a widget has to the agentId it needs
     public int getAgentId(int widgetId) {
         SQLiteDatabase db = getReadableDatabase();
         //SELECT _id FROM agents WHERE WIDGETID = widgetId
+        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+        queryBuilder.setTables(Agent.TABLE_NAME);
+        Cursor cursor = queryBuilder.query(db, new String[]{Agent._ID}, Agent.COLUMN_NAME_WIDGETID+"="+String.valueOf(widgetId), null, null, null, null);
         //Should return a result set with 1 row and 1 column
-        Cursor cursor = db.rawQuery("SELECT ? FROM ? WHERE ? = ?", new String[]{Agent._ID, Agent.TABLE_NAME, Agent.COLUMN_NAME_WIDGETID, String.valueOf(widgetId)});
-        return cursor.getInt(0);
+        int id;
+        if (cursor.getCount()>0) {id = cursor.getInt(0);}
+        else {id = 0;}
+        return id;
     }
 
     public Cursor getAllClicks() {
