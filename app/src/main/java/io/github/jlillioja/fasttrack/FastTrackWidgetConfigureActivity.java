@@ -1,6 +1,7 @@
 package io.github.jlillioja.fasttrack;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RemoteViews;
 
 /**
  * The configuration screen for the {@link FastTrackWidget FastTrackWidget} AppWidget.
@@ -23,13 +25,21 @@ public class FastTrackWidgetConfigureActivity extends Activity {
         public void onClick(View v) {
             final Context context = FastTrackWidgetConfigureActivity.this;
 
-            // When the button is clicked, store the string locally
-            String widgetText = mAppWidgetText.getText().toString();
-            saveTitlePref(context, mAppWidgetId, widgetText);
-            DatabaseHelper.getInstance(context).insertAgent(widgetText, mAppWidgetId);
+            String widgetName = mAppWidgetText.getText().toString();
+
+            /* Add the new agent to the Agents table */
+            int agentId = DatabaseHelper.getInstance(context).insertAgent(mAppWidgetId, widgetName);
+
+            /* Construct the button */
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.fast_track_widget);
+            views.setTextViewText(R.id.widgetButton, widgetName);
+            Intent intent = new Intent(context, FastTrackService.class);
+            intent.putExtra(DatabaseContract.Agent._ID, agentId);
+            PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            views.setOnClickPendingIntent(R.id.widgetButton, pendingIntent);
 
             // It is the responsibility of the configuration activity to update the app widget
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            AppWidgetManager.getInstance(context).updateAppWidget(mAppWidgetId, views);
 
             // Make sure we pass back the original appWidgetId
             Intent resultValue = new Intent();
@@ -41,31 +51,6 @@ public class FastTrackWidgetConfigureActivity extends Activity {
 
     public FastTrackWidgetConfigureActivity() {
         super();
-    }
-
-    // Write the prefix to the SharedPreferences object for this widget
-    static void saveTitlePref(Context context, int appWidgetId, String text) {
-        SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-        prefs.putString(PREF_PREFIX_KEY + appWidgetId, text);
-        prefs.apply();
-    }
-
-    // Read the prefix from the SharedPreferences object for this widget.
-    // If there is no preference saved, get the default from a resource
-    static String loadTitlePref(Context context, int appWidgetId) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        String titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null);
-        if (titleValue != null) {
-            return titleValue;
-        } else {
-            return context.getString(R.string.appwidget_text);
-        }
-    }
-
-    static void deleteTitlePref(Context context, int appWidgetId) {
-        SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-        prefs.remove(PREF_PREFIX_KEY + appWidgetId);
-        prefs.apply();
     }
 
     @Override
@@ -94,7 +79,7 @@ public class FastTrackWidgetConfigureActivity extends Activity {
             return;
         }
 
-        mAppWidgetText.setText(loadTitlePref(FastTrackWidgetConfigureActivity.this, mAppWidgetId));
+        mAppWidgetText.setText(getString(R.string.appwidget_default_text));
     }
 
 

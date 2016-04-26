@@ -3,7 +3,6 @@ package io.github.jlillioja.fasttrack;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
@@ -25,14 +24,14 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
                     " (" +
                     Click._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     Click.COLUMN_NAME_TIMESTAMP + " TIMESTAMP, " +
-                    Click.COLUMN_NAME_AGENT + " INTEGER)";
+                    Click.COLUMN_NAME_AGENT_ID + " INTEGER)";
 
     private static final String SQL_CREATE_AGENTS =
             "CREATE TABLE " +
                     Agent.TABLE_NAME +
                     " (" +
                     Agent._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    Agent.COLUMN_NAME_AGENT + " TEXT, " +
+                    Agent.COLUMN_NAME_AGENT_NAME + " TEXT, " +
                     Agent.COLUMN_NAME_WIDGETID + " INTEGER)";
 
     private static final String SQL_DELETE_CLICKS =
@@ -74,10 +73,10 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         recreate(db);
     }
 
-    public void insertTimestamp(int agentID) {
+     public void insertTimestamp(int agentID) {
         SQLiteDatabase db = getWritableDatabase();
-        //INSERT INTO CLICKS (TIMESTAMP, AGENT) VALUES (datetime(), agentID)
-        db.execSQL("INSERT INTO "+Click.TABLE_NAME+" ("+Click.COLUMN_NAME_TIMESTAMP+", "+Click.COLUMN_NAME_AGENT+") VALUES (datetime(), "+String.valueOf(agentID)+")");
+        //INSERT INTO CLICKS (TIMESTAMP, AGENT_ID) VALUES (datetime(), agentID)
+        db.execSQL("INSERT INTO "+Click.TABLE_NAME+" ("+Click.COLUMN_NAME_TIMESTAMP+", "+Click.COLUMN_NAME_AGENT_ID +") VALUES (datetime(), "+String.valueOf(agentID)+")");
     }
 
     public void insertTimestamp() {
@@ -86,11 +85,11 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     }
 
     // Returns the _ID of the newly inserted agent
-    public int insertAgent(String agent, int widgetId) {
+    public int insertAgent(int widgetId, String agent) {
         SQLiteDatabase db = getWritableDatabase();
         //INSERT INTO agents (agent_name, widgetID) VALUES (agent, widgetId)
         ContentValues values = new ContentValues();
-        values.put(Agent.COLUMN_NAME_AGENT, agent);
+        values.put(Agent.COLUMN_NAME_AGENT_NAME, agent);
         values.put(Agent.COLUMN_NAME_WIDGETID, widgetId);
         int id = (int) db.insert(Agent.TABLE_NAME, null, values); //Casting the long the insert method returns. TODO: make ID long everywhere.
         return id;
@@ -100,10 +99,21 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         return this.getReadableDatabase().rawQuery("SELECT * FROM " + Click.TABLE_NAME, null);
     }
 
+    public String getAgentName(int agentID) {
+        SQLiteDatabase db = getReadableDatabase();
+        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+        queryBuilder.setTables(Agent.TABLE_NAME);
+        Cursor cursor = queryBuilder.query(db, new String[]{Agent.COLUMN_NAME_AGENT_NAME}, Agent._ID +"="+String.valueOf(agentID), null, null, null, null);
+        //Should return a result set with 1 row and 1 column
+        if (cursor.getCount()>0) {
+            return cursor.getString(cursor.getColumnIndex(Agent.COLUMN_NAME_AGENT_NAME));
+        } else {return null;}
+    }
+
     //TODO: does not validate name, only existence.
     public int validateAgent(int widgetId, String name) {
         SQLiteDatabase db = getReadableDatabase();
-        //SELECT _id FROM agents WHERE WIDGETID = widgetId
+        //SELECT agent_name FROM agents WHERE WIDGETID = widgetId
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(Agent.TABLE_NAME);
         Cursor cursor = queryBuilder.query(db, new String[]{Agent._ID}, Agent.COLUMN_NAME_WIDGETID+"="+String.valueOf(widgetId), null, null, null, null);
@@ -112,7 +122,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         if (cursor.getCount()>0) {
             id = cursor.getInt(cursor.getColumnIndex(Agent._ID));
         } else {
-            id = insertAgent(name, widgetId);
+            id = insertAgent(widgetId, name);
         }
         return id;
     }

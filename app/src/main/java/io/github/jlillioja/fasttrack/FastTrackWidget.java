@@ -18,21 +18,10 @@ public class FastTrackWidget extends AppWidgetProvider {
 
     private static final String mOnClick = "FastTrackOnClick";
 
-    private static final int agentID = 2;
+    private static final int defaultAgentId = 2;
 
     public void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 
-        String widgetText = FastTrackWidgetConfigureActivity.loadTitlePref(context, appWidgetId);
-        int agentID = DatabaseHelper.getInstance(context).validateAgent(appWidgetId, widgetText);
-        // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.fast_track_widget);
-        views.setTextViewText(R.id.widgetButton, widgetText);
-        Intent intent = new Intent(context, FastTrackService.class);
-        intent.putExtra(DatabaseContract.Agent._ID, agentID);
-        PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        views.setOnClickPendingIntent(R.id.widgetButton, pendingIntent);
-        // Instruct the widget manager to update the widget
-        appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
     @Override

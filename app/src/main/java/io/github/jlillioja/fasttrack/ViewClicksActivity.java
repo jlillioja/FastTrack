@@ -28,14 +28,15 @@ public class ViewClicksActivity extends AppCompatActivity {
 
     private void refresh() {
         Cursor cursor = mDb.getAllClicks();
+        /* Adapter from clicks to views.
+        The String array lists data sources, the int array data destinations.
+        The adapter assigns the data with respect to order in the array, and the formatting reflects this. */
         SimpleCursorAdapter adapter =
                 new SimpleCursorAdapter(this, R.layout.list_item, cursor,
-                        new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP, DatabaseContract.Click.COLUMN_NAME_AGENT},
-                        new int[]    {R.id.timestamp,                               R.id.agent_name},
+                        new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP, DatabaseContract.Click.COLUMN_NAME_AGENT_ID},
+                        new int[]    {R.id.timestamp,                               R.id.agent_id},
                         0);
-        ListView listView = (ListView) findViewById(R.id.clickList);
-        assert listView != null; //At the suggestion of Android Studio
-        listView.setAdapter(adapter);
+        mClickList.setAdapter(adapter);
     }
 
     @Override
