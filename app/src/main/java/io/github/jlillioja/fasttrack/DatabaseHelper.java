@@ -85,17 +85,23 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         db.execSQL("INSERT INTO " + Click.TABLE_NAME + " (" + Click.COLUMN_NAME_TIMESTAMP + ") VALUES (datetime())");
     }
 
-    public void insertAgent(String agent, int widgetId) {
+    // Returns the _ID of the newly inserted agent
+    public int insertAgent(String agent, int widgetId) {
         SQLiteDatabase db = getWritableDatabase();
         //INSERT INTO agents (agent_name, widgetID) VALUES (agent, widgetId)
         ContentValues values = new ContentValues();
         values.put(Agent.COLUMN_NAME_AGENT, agent);
         values.put(Agent.COLUMN_NAME_WIDGETID, widgetId);
-        db.insert(Agent.TABLE_NAME, null, values);
+        int id = (int) db.insert(Agent.TABLE_NAME, null, values); //Casting the long the insert method returns. TODO: make ID long everywhere.
+        return id;
     }
 
-    //Map from widgetId that a widget has to the agentId it needs
-    public int getAgentId(int widgetId) {
+    public Cursor getAllClicks() {
+        return this.getReadableDatabase().rawQuery("SELECT * FROM " + Click.TABLE_NAME, null);
+    }
+
+    //TODO: does not validate name, only existence.
+    public int validateAgent(int widgetId, String name) {
         SQLiteDatabase db = getReadableDatabase();
         //SELECT _id FROM agents WHERE WIDGETID = widgetId
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
@@ -103,12 +109,11 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         Cursor cursor = queryBuilder.query(db, new String[]{Agent._ID}, Agent.COLUMN_NAME_WIDGETID+"="+String.valueOf(widgetId), null, null, null, null);
         //Should return a result set with 1 row and 1 column
         int id;
-        if (cursor.getCount()>0) {id = cursor.getInt(0);}
-        else {id = 0;}
+        if (cursor.getCount()>0) {
+            id = cursor.getInt(cursor.getColumnIndex(Agent._ID));
+        } else {
+            id = insertAgent(name, widgetId);
+        }
         return id;
-    }
-
-    public Cursor getAllClicks() {
-        return this.getReadableDatabase().rawQuery("SELECT * FROM " + Click.TABLE_NAME, null);
     }
 }

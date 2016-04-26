@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">FastTrack</string>
     <string name="FastTrack">Fast Track</string>
-    <string name="appwidget_text">EXAMPLE</string>
+    <string name="appwidget_text">FastTrack</string>
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>
 </resources>
