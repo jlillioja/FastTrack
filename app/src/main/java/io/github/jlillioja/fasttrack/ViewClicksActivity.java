@@ -28,6 +28,11 @@ public class ViewClicksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_clicks);
         ButterKnife.inject(this);
         mDb = DatabaseHelper.getInstance(getApplicationContext());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         refresh();
     }
 
