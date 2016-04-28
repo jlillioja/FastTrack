@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">FastTrack</string>
     <string name="FastTrack">Fast Track</string>
-    <string name="appwidget_default_text">FastTrack</string>
+    <string name="appwidget_default_text">Fast Track</string>
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>
+    <string name="MainAgent">MainActivity</string>
+    <string name="prefs">FastTrackPreferences</string>
 </resources>

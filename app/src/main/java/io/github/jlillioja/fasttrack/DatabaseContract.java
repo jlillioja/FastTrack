@@ -8,17 +8,18 @@ import android.provider.BaseColumns;
 public interface DatabaseContract {
 
     String DATABASE_NAME = "FTDB";
-    int DATABASE_VERSION = 3;
+    int DATABASE_VERSION = 4;
 
     interface Click extends BaseColumns {
         String TABLE_NAME = "clicks";
+        /* Timestamp is in milliseconds from epoch. */
         String COLUMN_NAME_TIMESTAMP = "timestamp";
-        String COLUMN_NAME_AGENT = "agent";
+        String COLUMN_NAME_AGENT_ID = "agent_id";
     }
 
     interface Agent extends BaseColumns {
         String TABLE_NAME = "agents";
-        String COLUMN_NAME_AGENT = "agent";
+        String COLUMN_NAME_AGENT_NAME = "agent_name";
         String COLUMN_NAME_WIDGETID = "widgetId";
     }
 }

@@ -1,6 +1,7 @@
 package io.github.jlillioja.fasttrack;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -11,7 +12,8 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper mDbHelper;
-    private final int agentID = 1;
+    public static int agentID = 1;
+    public static String agentName = "Main Activity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

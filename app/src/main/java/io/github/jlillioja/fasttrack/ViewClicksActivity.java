@@ -6,8 +6,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -33,9 +38,28 @@ public class ViewClicksActivity extends AppCompatActivity {
         The adapter assigns the data with respect to order in the array, and the formatting reflects this. */
         SimpleCursorAdapter adapter =
                 new SimpleCursorAdapter(this, R.layout.list_item, cursor,
-                        new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP, DatabaseContract.Click.COLUMN_NAME_AGENT_ID},
-                        new int[]    {R.id.timestamp,                               R.id.agent_id},
+                        new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP, DatabaseContract.Agent.COLUMN_NAME_AGENT_NAME, DatabaseContract.Agent._ID, },
+                        new int[]    {R.id.timestamp,                               R.id.agent_name,                               R.id.agent_id},
                         0);
+
+        /*
+        Format the timestamp from epoch time to readable time.
+        TODO: dates could look nicer.
+         */
+        adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                if (columnIndex == cursor.getColumnIndex(DatabaseContract.Click.COLUMN_NAME_TIMESTAMP)) {
+                    Long epochTime = cursor.getLong(columnIndex);
+                    TextView textview = (TextView) view;
+                    GregorianCalendar cal = new GregorianCalendar();
+                    cal.setTimeInMillis(epochTime);
+                    textview.setText(cal.getTime().toString());
+                    return true;
+                } else return false;
+            }
+        });
+
         mClickList.setAdapter(adapter);
     }
 
