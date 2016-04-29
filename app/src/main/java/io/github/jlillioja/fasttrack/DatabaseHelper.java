@@ -112,17 +112,17 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     }
 
     /*
-    Returns a cursor over all clicks with relevant information from multiple tables.
+    Returns a cursor over unfiltered clicks with relevant information from multiple tables.
     Currently selects all columns in clicks and joins agent name from agents.
      */
-    public Cursor getAllClicks() {
+    public Cursor getClicks() {
         //return this.getReadableDatabase().rawQuery("SELECT * FROM " + Click.TABLE_NAME, null);
         SQLiteDatabase db = getReadableDatabase();
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         String fullAgentID = Agent.TABLE_NAME+"."+Agent._ID; //Otherwise it confuses Click._id with Agent._id
         queryBuilder.setTables(Click.TABLE_NAME+" JOIN "+Agent.TABLE_NAME+" ON "+Click.COLUMN_NAME_AGENT_ID+"="+fullAgentID);
-        String[] columns = {Click.COLUMN_NAME_TIMESTAMP, Agent.COLUMN_NAME_AGENT_NAME, fullAgentID};
-        Cursor cursor = queryBuilder.query(db, columns, null, null, null, null, null);
+        String[] columns = {Click.COLUMN_NAME_TIMESTAMP, Agent.COLUMN_NAME_AGENT_NAME, Agent.COLUMN_NAME_FILTERED, fullAgentID};
+        Cursor cursor = queryBuilder.query(db, columns, Agent.COLUMN_NAME_FILTERED+"=1", null, null, null, null);
         Log.d(LOG_TAG, "Cursor size: "+String.valueOf(cursor.getCount()));
         return cursor;
     }
@@ -162,10 +162,8 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         return query.query(db, new String[]{Agent._ID, Agent.COLUMN_NAME_AGENT_NAME, Agent.COLUMN_NAME_FILTERED}, null, null, null, null, null);
     }
 
-    public void toggleFilter(int agentId, boolean show) {
+    public void toggleFilter(ContentValues change) {
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(Agent.COLUMN_NAME_FILTERED, show?1:0);
-        db.update(Agent.TABLE_NAME, values, Agent._ID+" = "+String.valueOf(agentId), null);
+        db.update(Agent.TABLE_NAME, change, Agent._ID+" = "+String.valueOf(change.get(Agent._ID)), null);
     }
 }
