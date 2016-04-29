@@ -1,5 +1,7 @@
 package io.github.jlillioja.fasttrack;
 
+import android.app.DialogFragment;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +22,8 @@ import butterknife.InjectView;
 public class ViewClicksActivity extends AppCompatActivity {
 
     private DatabaseHelper mDb;
+    private SharedPreferences prefs;
+
     @InjectView(R.id.clickList) ListView mClickList;
 
     @Override
@@ -28,6 +32,7 @@ public class ViewClicksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_clicks);
         ButterKnife.inject(this);
         mDb = DatabaseHelper.getInstance(getApplicationContext());
+        prefs = getSharedPreferences(getString(R.string.prefs), 0);
     }
 
     @Override
@@ -81,6 +86,9 @@ public class ViewClicksActivity extends AppCompatActivity {
             case R.id.refresh_view_clicks:
                 refresh();
                 return true;
+            case R.id.filter_view_clicks:
+                DialogFragment dialog = new FilterDialog();
+                dialog.show(getFragmentManager(), "filter dialog");
             default:
                 return super.onOptionsItemSelected(item);
         }
