@@ -3,4 +3,7 @@
     <item
         android:id="@+id/delete_database"
         android:title="Delete Database"/>
+    <item
+        android:id="@+id/view_agents"
+        android:title="View Agents"/>
 </menu>

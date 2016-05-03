@@ -33,7 +33,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".FastTrackService"/>
+        <service android:name=".FastTrackService" />
+
+        <activity android:name=".ViewAgentsActivity"></activity>
     </application>
 
 </manifest>

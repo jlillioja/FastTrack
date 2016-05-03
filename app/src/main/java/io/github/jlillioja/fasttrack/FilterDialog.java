@@ -38,7 +38,7 @@ public class FilterDialog extends DialogFragment {
                         Log.d(LOG_TAG, "Applying "+String.valueOf(changes.size())+" changes.");
                         /* Commit changes */
                         for (ContentValues change : changes) {
-                            db.toggleFilter(change);
+                            db.updateAgent(change);
                         }
                         mListener.onDialogPositiveClick(FilterDialog.this);
                     }

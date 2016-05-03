@@ -1,7 +1,6 @@
 package io.github.jlillioja.fasttrack;
 
 import android.app.DialogFragment;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,7 +23,6 @@ public class ViewClicksActivity extends AppCompatActivity
 
     private static final String LOG_TAG = "ViewClicksActivity";
     private DatabaseHelper mDb;
-    private SharedPreferences prefs;
 
     @InjectView(R.id.clickList) ListView mClickList;
 
@@ -34,7 +32,6 @@ public class ViewClicksActivity extends AppCompatActivity
         setContentView(R.layout.activity_view_clicks);
         ButterKnife.inject(this);
         mDb = DatabaseHelper.getInstance(getApplicationContext());
-        prefs = getSharedPreferences(getString(R.string.prefs), 0);
     }
 
     @Override
@@ -49,9 +46,9 @@ public class ViewClicksActivity extends AppCompatActivity
         The String array lists data sources, the int array data destinations.
         The adapter assigns the data with respect to order in the array, and the formatting reflects this. */
         SimpleCursorAdapter adapter =
-                new SimpleCursorAdapter(this, R.layout.list_item, cursor,
-                        new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP, DatabaseContract.Agent.COLUMN_NAME_AGENT_NAME, DatabaseContract.Agent._ID, },
-                        new int[]    {R.id.timestamp,                               R.id.agent_name,                               R.id.agent_id},
+                new SimpleCursorAdapter(this, R.layout.clicklist_item, cursor,
+                        new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP, DatabaseContract.Agent.COLUMN_NAME_AGENT_NAME, DatabaseContract.Agent._ID, DatabaseContract.Agent.COLUMN_NAME_STATE},
+                        new int[]    {R.id.timestamp,                               R.id.agent_name,                               R.id.agent_id,              R.id.agent_state},
                         0);
 
         /*

@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
 public interface DatabaseContract {
 
     String DATABASE_NAME = "FTDB";
-    int DATABASE_VERSION = 5;
+    int DATABASE_VERSION = 6;
 
     interface Click extends BaseColumns {
         String TABLE_NAME = "clicks";
@@ -22,5 +22,6 @@ public interface DatabaseContract {
         String COLUMN_NAME_AGENT_NAME = "agent_name";
         String COLUMN_NAME_WIDGETID = "widgetId";
         String COLUMN_NAME_FILTERED = "filtered";
+        String COLUMN_NAME_STATE = "state";
     }
 }

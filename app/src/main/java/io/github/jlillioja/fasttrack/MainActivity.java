@@ -1,5 +1,6 @@
 package io.github.jlillioja.fasttrack;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -23,7 +24,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void fastTrack(View view) {
+
         mDbHelper.insertTimestamp(agentID);
+        mDbHelper.incrementState(agentID);
     }
 
     public void viewClicks(View view) {
@@ -44,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.delete_database:
                 mDbHelper.recreate();
                 return true;
+            case R.id.view_agents:
+                startActivity(new Intent(this, ViewAgentsActivity.class));
             default:
                 return super.onOptionsItemSelected(item);
         }

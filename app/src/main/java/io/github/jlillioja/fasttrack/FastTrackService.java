@@ -27,6 +27,7 @@ public class FastTrackService extends IntentService {
         int agentID = intent.getIntExtra(DatabaseContract.Agent._ID, 0);
         DatabaseHelper db = DatabaseHelper.getInstance(this);
         db.insertTimestamp(agentID);
+        db.incrementState(agentID);
     }
 
 }
