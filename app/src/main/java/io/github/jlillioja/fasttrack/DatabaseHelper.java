@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
@@ -17,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
 
     private static DatabaseHelper sInstance;
     private static GregorianCalendar cal;
-    private static String LOG_TAG = "DatabaseHelper";
+    protected static String LOG_TAG = "DatabaseHelper";
 
     //TODO: Consider abstracting SQL_CREATE statements for DRYness
 
@@ -35,7 +36,8 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
                     " (" +
                     Agent._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     Agent.COLUMN_NAME_AGENT_NAME + " TEXT, " +
-                    Agent.COLUMN_NAME_WIDGETID + " INTEGER)";
+                    Agent.COLUMN_NAME_WIDGETID + " INTEGER, " +
+                    Agent.COLUMN_NAME_FILTERED + " INTEGER)";
 
     private static final String SQL_DELETE_CLICKS =
             "DROP TABLE IF EXISTS " + Click.TABLE_NAME;
@@ -59,7 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_CLICKS);
         db.execSQL(SQL_CREATE_AGENTS);
-        insertAgent(MainActivity.agentName);
+        insertAgent(MainActivity.agentName, db);
     }
 
     public void recreate(SQLiteDatabase db) {
@@ -86,7 +88,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         values.put(Click.COLUMN_NAME_TIMESTAMP, cal.getTimeInMillis());
         values.put(Click.COLUMN_NAME_AGENT_ID, agentID);
         db.insert(Click.TABLE_NAME, null, values);
-        db.close();
     }
 
     /* TODO: How can it DRY this overloaded function? */
@@ -98,32 +99,31 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         ContentValues values = new ContentValues();
         values.put(Agent.COLUMN_NAME_AGENT_NAME, agent);
         values.put(Agent.COLUMN_NAME_WIDGETID, widgetId);
+        values.put(Agent.COLUMN_NAME_FILTERED, 1); //No agent is filtered by default.
         int id = (int) db.insert(Agent.TABLE_NAME, null, values); //Casting the long the insert method returns. TODO: make ID long everywhere.
-        db.close();
         return id;
     }
 
-    public int insertAgent(String agent) {
-        SQLiteDatabase db = getWritableDatabase();
+    public int insertAgent(String agent, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
         values.put(Agent.COLUMN_NAME_AGENT_NAME, agent);
+        values.put(Agent.COLUMN_NAME_FILTERED, 1);
         int id = (int) db.insert(Agent.TABLE_NAME, null, values);
-        db.close();
         return id;
     }
 
     /*
-    Returns a cursor over all clicks with relevant information from multiple tables.
+    Returns a cursor over unfiltered clicks with relevant information from multiple tables.
     Currently selects all columns in clicks and joins agent name from agents.
      */
-    public Cursor getAllClicks() {
+    public Cursor getClicks() {
         //return this.getReadableDatabase().rawQuery("SELECT * FROM " + Click.TABLE_NAME, null);
         SQLiteDatabase db = getReadableDatabase();
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        String fullAgentID = Agent.TABLE_NAME+"."+Agent._ID;
+        String fullAgentID = Agent.TABLE_NAME+"."+Agent._ID; //Otherwise it confuses Click._id with Agent._id
         queryBuilder.setTables(Click.TABLE_NAME+" JOIN "+Agent.TABLE_NAME+" ON "+Click.COLUMN_NAME_AGENT_ID+"="+fullAgentID);
-        String[] columns = {Click.COLUMN_NAME_TIMESTAMP, Agent.COLUMN_NAME_AGENT_NAME, fullAgentID};
-        Cursor cursor = queryBuilder.query(db, columns, null, null, null, null, null);
+        String[] columns = {Click.COLUMN_NAME_TIMESTAMP, Agent.COLUMN_NAME_AGENT_NAME, Agent.COLUMN_NAME_FILTERED, fullAgentID};
+        Cursor cursor = queryBuilder.query(db, columns, Agent.COLUMN_NAME_FILTERED+"=1", null, null, null, null);
         Log.d(LOG_TAG, "Cursor size: "+String.valueOf(cursor.getCount()));
         return cursor;
     }
@@ -133,7 +133,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(Agent.TABLE_NAME);
         Cursor cursor = queryBuilder.query(db, new String[]{Agent.COLUMN_NAME_AGENT_NAME}, Agent._ID +"="+String.valueOf(agentID), null, null, null, null);
-        db.close();
         //Should return a result set with 1 row and 1 column
         if (cursor.getCount()>0) {
             return cursor.getString(cursor.getColumnIndex(Agent.COLUMN_NAME_AGENT_NAME));
@@ -155,5 +154,32 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
             id = insertAgent(widgetId, name);
         }
         return id;
+    }
+
+    public Cursor getAgents() {
+        SQLiteDatabase db = getReadableDatabase();
+        SQLiteQueryBuilder query = new SQLiteQueryBuilder();
+        query.setTables(Agent.TABLE_NAME);
+        return query.query(db, new String[]{Agent._ID, Agent.COLUMN_NAME_AGENT_NAME, Agent.COLUMN_NAME_FILTERED}, null, null, null, null, null);
+    }
+
+    public void toggleFilter(ContentValues change) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.update(Agent.TABLE_NAME, change, Agent._ID+" = "+String.valueOf(change.get(Agent._ID)), null);
+        logResults("SELECT * FROM "+Agent.TABLE_NAME+" WHERE ? = ?", new String[]{Agent._ID, change.getAsString(Agent._ID)});
+    }
+
+    /* Debugging tool to print result set of a SQL query. */
+    private void logResults (String query, String[] args) {
+        Cursor cursor = getReadableDatabase().rawQuery(query, args);
+        for (int i=0;i<cursor.getCount();i++) { //For each row
+            String entry = "";
+            cursor.moveToPosition(i);
+            for (int j=0;j<cursor.getColumnCount();j++) { //And each column
+                entry = entry+String.format("%-10s : %-20s \n", cursor.getColumnName(j),cursor.getString(j));
+            }
+            entry = entry+"\n";
+            Log.d(LOG_TAG, entry);
+        }
     }
 }

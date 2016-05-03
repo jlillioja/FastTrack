@@ -1,8 +1,11 @@
 package io.github.jlillioja.fasttrack;
 
+import android.app.DialogFragment;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,15 +14,18 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class ViewClicksActivity extends AppCompatActivity {
+public class ViewClicksActivity extends AppCompatActivity
+                                implements FilterDialog.FilterDialogListener {
 
+    private static final String LOG_TAG = "ViewClicksActivity";
     private DatabaseHelper mDb;
+    private SharedPreferences prefs;
+
     @InjectView(R.id.clickList) ListView mClickList;
 
     @Override
@@ -28,6 +34,7 @@ public class ViewClicksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_clicks);
         ButterKnife.inject(this);
         mDb = DatabaseHelper.getInstance(getApplicationContext());
+        prefs = getSharedPreferences(getString(R.string.prefs), 0);
     }
 
     @Override
@@ -37,7 +44,7 @@ public class ViewClicksActivity extends AppCompatActivity {
     }
 
     private void refresh() {
-        Cursor cursor = mDb.getAllClicks();
+        Cursor cursor = mDb.getClicks();
         /* Adapter from clicks to views.
         The String array lists data sources, the int array data destinations.
         The adapter assigns the data with respect to order in the array, and the formatting reflects this. */
@@ -81,8 +88,23 @@ public class ViewClicksActivity extends AppCompatActivity {
             case R.id.refresh_view_clicks:
                 refresh();
                 return true;
+            case R.id.filter_view_clicks:
+                Log.d(LOG_TAG, "Showing Filter Dialog");
+                DialogFragment dialog = new FilterDialog();
+                dialog.show(getFragmentManager(), "filter dialog");
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        // See the new changes
+        refresh();
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        // Nothing to do
     }
 }
