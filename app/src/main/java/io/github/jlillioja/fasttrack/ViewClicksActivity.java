@@ -19,7 +19,8 @@ import java.util.GregorianCalendar;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class ViewClicksActivity extends AppCompatActivity {
+public class ViewClicksActivity extends AppCompatActivity
+                                implements FilterDialog.FilterDialogListener {
 
     private static final String LOG_TAG = "ViewClicksActivity";
     private DatabaseHelper mDb;
@@ -94,5 +95,16 @@ public class ViewClicksActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        // See the new changes
+        refresh();
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        // Nothing to do
     }
 }

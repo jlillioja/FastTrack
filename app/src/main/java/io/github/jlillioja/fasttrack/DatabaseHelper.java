@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
@@ -17,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
 
     private static DatabaseHelper sInstance;
     private static GregorianCalendar cal;
-    private static String LOG_TAG = "DatabaseHelper";
+    protected static String LOG_TAG = "DatabaseHelper";
 
     //TODO: Consider abstracting SQL_CREATE statements for DRYness
 
@@ -165,5 +166,20 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     public void toggleFilter(ContentValues change) {
         SQLiteDatabase db = getWritableDatabase();
         db.update(Agent.TABLE_NAME, change, Agent._ID+" = "+String.valueOf(change.get(Agent._ID)), null);
+        logResults("SELECT * FROM "+Agent.TABLE_NAME+" WHERE ? = ?", new String[]{Agent._ID, change.getAsString(Agent._ID)});
+    }
+
+    /* Debugging tool to print result set of a SQL query. */
+    private void logResults (String query, String[] args) {
+        Cursor cursor = getReadableDatabase().rawQuery(query, args);
+        for (int i=0;i<cursor.getCount();i++) { //For each row
+            String entry = "";
+            cursor.moveToPosition(i);
+            for (int j=0;j<cursor.getColumnCount();j++) { //And each column
+                entry = entry+String.format("%-10s : %-20s \n", cursor.getColumnName(j),cursor.getString(j));
+            }
+            entry = entry+"\n";
+            Log.d(LOG_TAG, entry);
+        }
     }
 }
