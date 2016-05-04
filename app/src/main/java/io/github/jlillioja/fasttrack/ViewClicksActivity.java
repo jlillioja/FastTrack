@@ -47,8 +47,8 @@ public class ViewClicksActivity extends AppCompatActivity
         The adapter assigns the data with respect to order in the array, and the formatting reflects this. */
         SimpleCursorAdapter adapter =
                 new SimpleCursorAdapter(this, R.layout.clicklist_item, cursor,
-                        new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP, DatabaseContract.Agent.COLUMN_NAME_AGENT_NAME, DatabaseContract.Agent._ID, DatabaseContract.Agent.COLUMN_NAME_STATE},
-                        new int[]    {R.id.timestamp,                               R.id.agent_name,                               R.id.agent_id,              R.id.agent_state},
+                        new String[] {DatabaseContract.Click.COLUMN_NAME_TIMESTAMP, DatabaseContract.Agent.COLUMN_NAME_AGENT_NAME, DatabaseContract.Agent._ID},
+                        new int[]    {R.id.timestamp,                               R.id.agent_name,                               R.id.agent_id},
                         0);
 
         /*

@@ -62,25 +62,4 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/agent_state_entry"
-        android:layout_below="@id/agent_id_entry">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingRight="1sp"
-            android:text="Agent State: " />
-
-        <TextView
-            android:id="@+id/agent_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-
-
 </RelativeLayout>

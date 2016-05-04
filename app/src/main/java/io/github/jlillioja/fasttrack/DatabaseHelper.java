@@ -5,11 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
-import java.sql.SQLException;
 import java.util.GregorianCalendar;
 
 /**
@@ -134,33 +132,33 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     }
 
     public String getAgentName(int agentID) {
-        SQLiteDatabase db = getReadableDatabase();
-        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        queryBuilder.setTables(Agent.TABLE_NAME);
-        Cursor cursor = queryBuilder.query(db, new String[]{Agent.COLUMN_NAME_AGENT_NAME}, Agent._ID + "=" + String.valueOf(agentID), null, null, null, null);
-        //Should return a result set with 1 row and 1 column
-        if (cursor.getCount() > 0) {
-            return cursor.getString(cursor.getColumnIndex(Agent.COLUMN_NAME_AGENT_NAME));
-        } else {
-            return null;
-        }
+        return getProperty(Agent.TABLE_NAME, agentID, Agent.COLUMN_NAME_AGENT_NAME);
     }
 
-    //TODO: does not validate name, only existence.
-    public int validateAgent(int widgetId, String name) {
+    public int getAgentWidgetId(int agentId) {
+        return Integer.valueOf(getProperty(Agent.TABLE_NAME, agentId, Agent.COLUMN_NAME_WIDGETID));
+    }
+
+    public int getAgentState(int agentId) {
+        return Integer.valueOf(getProperty(Agent.TABLE_NAME, agentId, Agent.COLUMN_NAME_STATE));
+    }
+
+    private String getProperty(String table, int id, String column) {
         SQLiteDatabase db = getReadableDatabase();
-        //SELECT agent_name FROM agents WHERE WIDGETID = widgetId
+
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        queryBuilder.setTables(Agent.TABLE_NAME);
-        Cursor cursor = queryBuilder.query(db, new String[]{Agent._ID}, Agent.COLUMN_NAME_WIDGETID + "=" + String.valueOf(widgetId), null, null, null, null);
+        queryBuilder.setTables(table);
+        Cursor cursor = queryBuilder.query(db, new String[]{column}, Agent._ID + "=" + String.valueOf(id), null, null, null, null);
         //Should return a result set with 1 row and 1 column
-        int id;
         if (cursor.getCount() > 0) {
-            id = cursor.getInt(cursor.getColumnIndex(Agent._ID));
+            cursor.moveToFirst();
+            String result = cursor.getString(cursor.getColumnIndex(column));
+            cursor.close();
+            return result;
         } else {
-            id = insertAgent(widgetId, name);
+            cursor.close();
+            return null;
         }
-        return id;
     }
 
     public Cursor getAgents() {
@@ -192,21 +190,14 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         cursor.close();
     }
 
-    public int getState(int agentID) {
-        SQLiteQueryBuilder query = new SQLiteQueryBuilder();
-        query.setTables(Agent.TABLE_NAME);
-        Cursor cursor = query.query(getReadableDatabase(), new String[]{Agent.COLUMN_NAME_STATE}, Agent._ID + "=" + String.valueOf(agentID), null, null, null, null);
 
-        cursor.moveToFirst();
-        int state = cursor.getInt(cursor.getColumnIndex(Agent.COLUMN_NAME_STATE));
-        cursor.close();
-        return state;
-    }
 
     public int incrementState(int agentID) {
         SQLiteDatabase db = getWritableDatabase();
-        int state = getState(agentID)+1;
-        updateAgent(Utils.formatAgent(agentID, Agent.COLUMN_NAME_STATE, String.valueOf(state)));
+        int state = getAgentState(agentID)+1;
+        updateAgent(U.formatAgent(agentID, Agent.COLUMN_NAME_STATE, String.valueOf(state)));
         return state;
     }
+
+
 }

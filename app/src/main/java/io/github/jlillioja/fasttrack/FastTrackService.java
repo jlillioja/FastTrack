@@ -2,9 +2,7 @@ package io.github.jlillioja.fasttrack;
 
 import android.app.IntentService;
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 
 /**
@@ -28,6 +26,7 @@ public class FastTrackService extends IntentService {
         DatabaseHelper db = DatabaseHelper.getInstance(this);
         db.insertTimestamp(agentID);
         db.incrementState(agentID);
+        AppWidgetManager.getInstance(this).updateAppWidget(db.getAgentWidgetId(agentID), U.constructWidget(this, agentID));
     }
 
 }
