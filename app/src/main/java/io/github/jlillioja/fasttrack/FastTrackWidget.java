@@ -5,10 +5,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Button;
 import android.widget.RemoteViews;
-
-import butterknife.InjectView;
 
 /**
  * Implementation of App Widget functionality.
@@ -19,6 +16,8 @@ public class FastTrackWidget extends AppWidgetProvider {
     private static final String mOnClick = "FastTrackOnClick";
 
     private static final int defaultAgentId = 2;
+
+
 
     public void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 

@@ -4,8 +4,6 @@ import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 /**
@@ -22,24 +20,4 @@ public class U {
         return contentValues;
     }
 
-    /* Construct a RemoteView for a widget. */
-    public static RemoteViews constructWidget(Context context, int agentId) {
-        DatabaseHelper db = DatabaseHelper.getInstance(context);
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.fast_track_widget);
-        views.setInt(R.id.widgetButton, "setBackgroundColor", U.getStateColor(db.getAgentState(agentId)));
-        views.setTextViewText(R.id.widgetButton, db.getAgentName(agentId));
-        Intent intent = new Intent(context, FastTrackService.class);
-        intent.putExtra(DatabaseContract.Agent._ID, agentId);
-        PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        views.setOnClickPendingIntent(R.id.widgetButton, pendingIntent);
-        return views;
-    }
-
-    private static int getStateColor(int agentState) {
-        if (agentState%2 == 0) {
-            return Color.RED;
-        } else {
-            return Color.BLUE;
-        }
-    }
 }

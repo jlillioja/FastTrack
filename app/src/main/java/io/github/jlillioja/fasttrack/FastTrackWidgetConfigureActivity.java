@@ -27,9 +27,10 @@ public class FastTrackWidgetConfigureActivity extends Activity {
 
             /* Add the new agent to the Agents table */
             int agentId = DatabaseHelper.getInstance(context).insertAgent(mAppWidgetId, widgetName);
-
+            
             // Construct the button
-            RemoteViews views = U.constructWidget(context, agentId);
+            WidgetBuilder builder = new WidgetBuilder(context, agentId);
+            RemoteViews views = builder.constructWidget();
 
             // It is the responsibility of the configuration activity to update the app widget
             AppWidgetManager.getInstance(context).updateAppWidget(mAppWidgetId, views);

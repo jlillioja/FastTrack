@@ -193,10 +193,13 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
 
 
     public int incrementState(int agentID) {
-        SQLiteDatabase db = getWritableDatabase();
         int state = getAgentState(agentID)+1;
         updateAgent(U.formatAgent(agentID, Agent.COLUMN_NAME_STATE, String.valueOf(state)));
         return state;
+    }
+
+    public void resetState(int agentID) {
+        updateAgent(U.formatAgent(agentID, Agent.COLUMN_NAME_STATE, String.valueOf(0)));
     }
 
 

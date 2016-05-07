@@ -23,11 +23,16 @@ public class FastTrackService extends IntentService {
     public void onHandleIntent(Intent intent) {
         Log.d(LOG_TAG, "Handling intent");
         int agentID = intent.getIntExtra(DatabaseContract.Agent._ID, 0);
+
+        // Update database
         DatabaseHelper db = DatabaseHelper.getInstance(this);
         db.insertTimestamp(agentID);
         int state = db.incrementState(agentID);
         Log.d(LOG_TAG, "Agent "+String.valueOf(agentID)+" now has state "+String.valueOf(state));
-        AppWidgetManager.getInstance(this).updateAppWidget(db.getAgentWidgetId(agentID), U.constructWidget(this, agentID));
+
+        // Update widget
+        WidgetBuilder builder = new WidgetBuilder(this, agentID);
+        AppWidgetManager.getInstance(this).updateAppWidget(db.getAgentWidgetId(agentID), builder.constructWidget());
     }
 
 }
