@@ -15,34 +15,43 @@ import java.util.GregorianCalendar;
  */
 public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract {
 
+    private Context context;
     private static DatabaseHelper sInstance;
+    private static RuleJudge ruleJudge;
     private static GregorianCalendar cal;
     protected static String LOG_TAG = "DatabaseHelper";
 
     //TODO: Consider abstracting SQL_CREATE statements for DRYness
 
     private static final String SQL_CREATE_CLICKS =
-            "CREATE TABLE " +
-                    Click.TABLE_NAME +
-                    " (" +
+            "CREATE TABLE " + Click.TABLE_NAME + " (" +
                     Click._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     Click.COLUMN_NAME_TIMESTAMP + " INTEGER, " +
                     Click.COLUMN_NAME_AGENT_ID + " INTEGER)";
 
     private static final String SQL_CREATE_AGENTS =
-            "CREATE TABLE " +
-                    Agent.TABLE_NAME +
-                    " (" +
+            "CREATE TABLE " + Agent.TABLE_NAME + " (" +
                     Agent._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     Agent.COLUMN_NAME_AGENT_NAME + " TEXT, " +
                     Agent.COLUMN_NAME_WIDGETID + " INTEGER, " +
                     Agent.COLUMN_NAME_FILTERED + " INTEGER, " +
                     Agent.COLUMN_NAME_STATE + " INTEGER)";
 
+    private static final String SQL_CREATE_RULES =
+            "CREATE TABLE " + Rule.TABLE_NAME + " (" +
+                    Rule._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    Rule.COLUMN_NAME_TYPE + " INTEGER, " +
+                    Rule.COLUMN_NAME_TIME + " INTEGER, " +
+                    Rule.COLUMN_NAME_AGENT + " INTEGER)";
+
+
+
     private static final String SQL_DELETE_CLICKS =
             "DROP TABLE IF EXISTS " + Click.TABLE_NAME;
     private static final String SQL_DELETE_AGENTS =
             "DROP TABLE IF EXISTS " + Agent.TABLE_NAME;
+    private static final String SQL_DELETE_RULES =
+            "DROP TABLE IF EXISTS " + Rule.TABLE_NAME;
 
     public static synchronized DatabaseHelper getInstance(Context context) {
         if (sInstance == null) {
@@ -55,18 +64,22 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         cal = new GregorianCalendar();
+        this.context = context;
+        ruleJudge = RuleJudge.getInstance(context);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_CLICKS);
         db.execSQL(SQL_CREATE_AGENTS);
+        db.execSQL(SQL_CREATE_RULES);
         insertAgent(MainActivity.agentName, db);
     }
 
     public void recreate(SQLiteDatabase db) {
         db.execSQL(SQL_DELETE_CLICKS);
         db.execSQL(SQL_DELETE_AGENTS);
+        db.execSQL(SQL_DELETE_RULES);
         onCreate(db);
     }
 
@@ -101,8 +114,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         values.put(Agent.COLUMN_NAME_WIDGETID, widgetId);
         values.put(Agent.COLUMN_NAME_FILTERED, 1); //No agent is filtered by default.
         values.put(Agent.COLUMN_NAME_STATE, 0); //Default state is 0, unclicked.
-        int id = (int) db.insert(Agent.TABLE_NAME, null, values); //Casting the long the insert method returns. TODO: make ID long everywhere.
-        return id;
+        return (int) db.insert(Agent.TABLE_NAME, null, values);
     }
 
     // Special function just for main activity.
@@ -111,8 +123,16 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         values.put(Agent.COLUMN_NAME_AGENT_NAME, agent);
         values.put(Agent.COLUMN_NAME_FILTERED, 1);
         values.put(Agent.COLUMN_NAME_STATE, 0);
-        int id = (int) db.insert(Agent.TABLE_NAME, null, values);
-        return id;
+        return (int) db.insert(Agent.TABLE_NAME, null, values);
+    }
+
+    public int insertRule(int agentId, int type, int period) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Rule.COLUMN_NAME_AGENT, agentId);
+        values.put(Rule.COLUMN_NAME_TYPE, type);
+        values.put(Rule.COLUMN_NAME_TIME, period);
+        return (int) db.insert(Rule.TABLE_NAME, null, values);
     }
 
     /*
@@ -143,6 +163,18 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         return Integer.valueOf(getProperty(Agent.TABLE_NAME, agentId, Agent.COLUMN_NAME_STATE));
     }
 
+    public int getRuleType(int ruleId) {
+        return Integer.valueOf(getProperty(Rule.TABLE_NAME, ruleId, Rule.COLUMN_NAME_TYPE));
+    }
+
+    public int getRuleTime(int ruleId) {
+        return Integer.valueOf(getProperty(Rule.TABLE_NAME, ruleId, Rule.COLUMN_NAME_TIME));
+    }
+
+    public int getRuleAgent(int ruleId) {
+        return Integer.valueOf(getProperty(Rule.TABLE_NAME, ruleId, Rule.COLUMN_NAME_AGENT));
+    }
+
     private String getProperty(String table, int id, String column) {
         SQLiteDatabase db = getReadableDatabase();
 
@@ -166,6 +198,14 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         SQLiteQueryBuilder query = new SQLiteQueryBuilder();
         query.setTables(Agent.TABLE_NAME);
         return query.query(db, new String[]{Agent._ID, Agent.COLUMN_NAME_AGENT_NAME, Agent.COLUMN_NAME_FILTERED, Agent.COLUMN_NAME_STATE}, null, null, null, null, null);
+    }
+
+    public Cursor getAgentRules(int agentId) {
+        SQLiteDatabase db = getReadableDatabase();
+        SQLiteQueryBuilder query = new SQLiteQueryBuilder();
+        query.setTables(DatabaseContract.Rule.TABLE_NAME);
+        String[] columns = new String[]{Rule._ID};
+        return query.query(db, columns, DatabaseContract.Rule.COLUMN_NAME_AGENT+"="+String.valueOf(agentId), null, null, null, null);
     }
 
     /* Update an agent. Update given as a ContentValues object with at least Agent._ID specified. */
@@ -198,8 +238,9 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         return state;
     }
 
-    public void resetState(int agentID) {
+    public int resetState(int agentID) {
         updateAgent(U.formatAgent(agentID, Agent.COLUMN_NAME_STATE, String.valueOf(0)));
+        return 0;
     }
 
 

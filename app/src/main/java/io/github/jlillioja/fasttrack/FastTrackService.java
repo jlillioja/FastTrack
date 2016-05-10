@@ -10,9 +10,14 @@ import android.util.Log;
  */
 public class FastTrackService extends IntentService {
 
+
+
     final static String COMPONENT_NAME = FastTrackService.class.getName();
     final static String LOG_TAG = FastTrackService.class.getSimpleName();
-    final static String ACTION_TRACK = "action_track";
+
+    private final static String prefix = "io.github.jlillioja";
+    public final static String ACTION_CLICK = prefix+".ACTION_CLICK";
+    public static final String ACTION_ALARM = prefix+".ACTION_ALARM";
 
     public FastTrackService() {
         super(COMPONENT_NAME);
@@ -22,12 +27,25 @@ public class FastTrackService extends IntentService {
     @Override
     public void onHandleIntent(Intent intent) {
         Log.d(LOG_TAG, "Handling intent");
-        int agentID = intent.getIntExtra(DatabaseContract.Agent._ID, 0);
-
-        // Update database
         DatabaseHelper db = DatabaseHelper.getInstance(this);
-        db.insertTimestamp(agentID);
-        int state = db.incrementState(agentID);
+        RuleJudge judge = RuleJudge.getInstance(this);
+        String action = intent.getAction();
+        int agentID = intent.getIntExtra(DatabaseContract.Agent._ID, 0);
+        int state=0;
+
+        switch (action) {
+            case ACTION_ALARM:
+                Log.d(LOG_TAG, "Alarm!");
+                state = db.resetState(agentID);
+                break;
+            case ACTION_CLICK:
+                Log.d(LOG_TAG, "Click!");
+                db.insertTimestamp(agentID);
+                state = db.incrementState(agentID);
+                judge.resetAgentAlarms(agentID);
+                break;
+        }
+
         Log.d(LOG_TAG, "Agent "+String.valueOf(agentID)+" now has state "+String.valueOf(state));
 
         // Update widget

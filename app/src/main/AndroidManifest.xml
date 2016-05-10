@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.jlillioja.fasttrack">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:allowBackup="true"
@@ -35,7 +36,7 @@
 
         <service android:name=".FastTrackService" />
 
-        <activity android:name=".ViewAgentsActivity"></activity>
+        <activity android:name=".ViewAgentsActivity"/>
     </application>
 
 </manifest>
