@@ -33,7 +33,7 @@ public class RuleJudge {
         intent.setAction(FastTrackService.ACTION_ALARM);
         intent.putExtra(DatabaseContract.Agent._ID, db.getRuleAgent(id));
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);
-        alarmManager.set(db.getRuleType(id), db.getRuleTime(id), pendingIntent);
+        alarmManager.setExact(db.getRuleType(id), db.getRuleTime(id), pendingIntent);
     }
 
     public boolean judge(int agentId) {

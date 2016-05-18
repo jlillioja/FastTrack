@@ -26,13 +26,30 @@ public class WidgetBuilder {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.fast_track_widget);
 
         // Build the right state changes into the RemoteViews.
-        if (RuleJudge.getInstance(context).judge(agentId)) {
-            views.setInt(R.id.widgetButton, "setBackgroundColor", Color.RED);
-        } else {
-            views.setInt(R.id.widgetButton, "setBackgroundColor", Color.BLUE);
+
+        int widgetColor;
+        //TODO: there's gotta be a better way
+        switch (db.getAgentState(agentId)) {
+            case 0:
+                widgetColor = Color.GRAY;
+                break;
+            case 1:
+                widgetColor = Color.BLUE;
+                break;
+            case 2: case 3:
+                widgetColor = Color.GREEN;
+                break;
+            case 4: case 5: case 6: case 7:
+                widgetColor = Color.YELLOW;
+                break;
+            default:
+                widgetColor = Color.RED;
+                break;
         }
 
-        views.setTextViewText(R.id.widgetButton, db.getAgentName(agentId));
+        views.setInt(R.id.widgetButton, "setBackgroundColor", widgetColor);
+
+        views.setTextViewText(R.id.widgetButton, db.getAgentName(agentId)+"\n"+"+"+String.valueOf(db.getAgentState(agentId)));
 
         // The message it sends to the FastTrackService
         Intent intent = new Intent(context, FastTrackService.class);
