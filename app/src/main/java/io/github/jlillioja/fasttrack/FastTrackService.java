@@ -10,12 +10,10 @@ import android.util.Log;
  */
 public class FastTrackService extends IntentService {
 
-
-
     final static String COMPONENT_NAME = FastTrackService.class.getName();
     final static String LOG_TAG = FastTrackService.class.getSimpleName();
 
-    private final static String prefix = "io.github.jlillioja";
+    private final static String prefix = "io.github.jlillioja.FastTrack";
     public final static String ACTION_CLICK = prefix+".ACTION_CLICK";
     public static final String ACTION_ALARM = prefix+".ACTION_ALARM";
 

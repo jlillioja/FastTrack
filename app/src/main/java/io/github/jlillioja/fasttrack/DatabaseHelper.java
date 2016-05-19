@@ -126,7 +126,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         return (int) db.insert(Agent.TABLE_NAME, null, values);
     }
 
-    public int insertRule(int agentId, int type, int period) {
+    public int insertRule(int agentId, int type, long period) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(Rule.COLUMN_NAME_AGENT, agentId);
@@ -167,7 +167,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
         return Integer.valueOf(getProperty(Rule.TABLE_NAME, ruleId, Rule.COLUMN_NAME_TYPE));
     }
 
-    public int getRuleTime(int ruleId) {
+    public long getRuleTime(int ruleId) {
         return Integer.valueOf(getProperty(Rule.TABLE_NAME, ruleId, Rule.COLUMN_NAME_TIME));
     }
 

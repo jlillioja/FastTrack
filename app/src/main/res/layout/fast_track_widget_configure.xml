@@ -15,20 +15,68 @@
         android:id="@+id/appwidget_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Name"
         android:inputType="text" />
 
-    <NumberPicker
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/periodNumberPicker">
 
-    </NumberPicker>
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/atRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset at selected time" />
+
+        <RadioButton
+            android:id="@+id/afterRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset after selected time" />
+    </RadioGroup>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/atOptions"
+        android:visibility="gone">
+
+        <TimePicker
+            android:id="@+id/periodTimePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/afterOptions"
+        android:visibility="gone">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:id="@+id/time_EditText"/>
+
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/time_EditText"
+            android:id="@+id/increment_picker">
+
+        </ListView>
+
+    </RelativeLayout>
 
     <Button
-        android:id="@+id/add_button"
+        android:id="@+id/add_at_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/add_widget" />
+        android:layout_margin="8dp"
+        android:text="@string/add_widget"
+        android:visibility="gone"/>
 
 </LinearLayout>
