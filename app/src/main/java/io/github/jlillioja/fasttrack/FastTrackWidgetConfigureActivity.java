@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.RemoteViews;
 import android.widget.TextClock;
@@ -43,11 +44,14 @@ public class FastTrackWidgetConfigureActivity extends Activity {
     @InjectView(R.id.time_EditText) EditText mAfterTime;
     @InjectView(R.id.increment_picker) ListView mAfterIncrement;
     @InjectView(R.id.periodTimePicker) TimePicker mAtTimePicker;
+
+    @InjectView(R.id.ruleRadioGroup) RadioGroup radioGroup;
     @InjectView(R.id.afterRadioButton) RadioButton afterRadioButton;
     @InjectView(R.id.atRadioButton) RadioButton atRadioButton;
+
     @InjectView(R.id.afterOptions) RelativeLayout afterOptions;
     @InjectView(R.id.atOptions) RelativeLayout atOptions;
-    @InjectView(R.id.increment_list_item) TextView incrementListItem;
+
 
     public static class TimeIncrement {
         public static final int SECONDS = 1000;
@@ -91,32 +95,9 @@ public class FastTrackWidgetConfigureActivity extends Activity {
         ButterKnife.inject(this);
 
         mAppWidgetText.setText(getString(R.string.appwidget_default_text));
+
+        addButton.setOnClickListener(mAddWidgetOnClickListener);
     }
-
-    View.OnClickListener mRadioButtonOnClickListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.atRadioButton:
-                    clear();
-                    setRuleType(AlarmManager.RTC);
-                    makeAtOptionsAvailable();
-                    break;
-                case R.id.afterRadioButton:
-                    clear();
-                    setRuleType(AlarmManager.ELAPSED_REALTIME);
-                    makeAfterOptionsAvailable();
-                    break;
-                default:
-                    return;
-            }
-        }
-    };
-
-    View.OnClickListener mListOnClickListener = new View.OnClickListener() {
-        public void onClick(View v) {
-
-        }
-    };
 
     View.OnClickListener mAddWidgetOnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -126,7 +107,7 @@ public class FastTrackWidgetConfigureActivity extends Activity {
             long period = 0;
             switch (ruleType) {
                 case AlarmManager.ELAPSED_REALTIME:
-                    period = Integer.valueOf(mAfterTime.getText().toString());
+                    period = Integer.valueOf(mAfterTime.getText().toString())*1000; //convert seconds (input) to millis (internal)
                     break;
                 case AlarmManager.RTC:
                     period = TimeUnit.HOURS.toMillis(mAtTimePicker.getHour())
@@ -138,6 +119,7 @@ public class FastTrackWidgetConfigureActivity extends Activity {
             DatabaseHelper db = DatabaseHelper.getInstance(context);
             int agentId = db.insertAgent(mAppWidgetId, widgetName);
             int ruleId = db.insertRule(agentId, ruleType, period);
+            RuleJudge.getInstance(context).setAlarm(ruleId);
 
             // Construct the button
             WidgetBuilder builder = new WidgetBuilder(context, agentId);
@@ -166,14 +148,28 @@ public class FastTrackWidgetConfigureActivity extends Activity {
         mAppWidgetText.setText(name);
     }
 
-    private void makeAtOptionsAvailable() {
-        mAtTimePicker.setVisibility(View.VISIBLE);
+    public void makeOptionsAvailable(View v) {
+        switch (v.getId()) {
+            case R.id.afterRadioButton:
+                makeAfterOptionsAvailable();
+                break;
+            case R.id.atRadioButton:
+                makeAtOptionsAvailable();
+                break;
+        }
         addButton.setVisibility(View.VISIBLE);
     }
 
+    private void makeAtOptionsAvailable() {
+        setRuleType(AlarmManager.RTC);
+        afterOptions.setVisibility(View.GONE);
+        atOptions.setVisibility(View.VISIBLE);
+    }
+
     private void makeAfterOptionsAvailable() {
-        mAfterTime.setVisibility(View.VISIBLE);
-        addButton.setVisibility(View.VISIBLE);
+        setRuleType(AlarmManager.ELAPSED_REALTIME);
+        atOptions.setVisibility(View.GONE);
+        afterOptions.setVisibility(View.VISIBLE);
     }
 }
 

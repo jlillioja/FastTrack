@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 /**
@@ -16,7 +17,7 @@ public class FastTrackWidget extends AppWidgetProvider {
     private static final String mOnClick = "FastTrackOnClick";
 
     private static final int defaultAgentId = 2;
-
+    private static final String LOG_TAG = "FastTrackWidgetProvider";
 
 
     public void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {

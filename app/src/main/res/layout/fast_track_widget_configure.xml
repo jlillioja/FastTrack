@@ -21,19 +21,22 @@
 
     <RadioGroup
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:id="@+id/ruleRadioGroup">
 
         <RadioButton
             android:id="@+id/atRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reset at selected time" />
+            android:text="@string/at_string"
+            android:onClick="makeOptionsAvailable"/>
 
         <RadioButton
             android:id="@+id/afterRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reset after selected time" />
+            android:text="@string/after_string"
+            android:onClick="makeOptionsAvailable"/>
     </RadioGroup>
 
     <RelativeLayout
@@ -72,7 +75,7 @@
     </RelativeLayout>
 
     <Button
-        android:id="@+id/add_at_button"
+        android:id="@+id/add_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"

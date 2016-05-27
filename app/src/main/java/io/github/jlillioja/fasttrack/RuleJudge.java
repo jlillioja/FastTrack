@@ -5,12 +5,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.SystemClock;
+import android.util.Log;
+
+import java.util.Calendar;
 
 /**
  * Created by Jacob on 5/7/2016.
  */
 public class RuleJudge {
 
+    private static final String LOG_TAG = "RuleJudge";
     private Context context;
     private static RuleJudge sInstance;
     private AlarmManager alarmManager;
@@ -32,13 +37,16 @@ public class RuleJudge {
         Intent intent = new Intent(context, FastTrackService.class);
         intent.setAction(FastTrackService.ACTION_ALARM);
         intent.putExtra(DatabaseContract.Agent._ID, db.getRuleAgent(id));
+        intent.putExtra("RuleId", id);
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);
-        alarmManager.setExact(db.getRuleType(id), db.getRuleTime(id), pendingIntent);
-    }
+        int ruleType = db.getRuleType(id);
+        long ruleTime = db.getRuleTime(id);
 
-    public boolean judge(int agentId) {
-        int agentState = DatabaseHelper.getInstance(context).getAgentState(agentId);
-        return (agentState > 0);
+        if (ruleType == AlarmManager.ELAPSED_REALTIME) {
+            alarmManager.setExact(ruleType, SystemClock.elapsedRealtime()+ruleTime, pendingIntent);
+            Log.d(LOG_TAG, "Rule "+String.valueOf(id)+": Type "+String.valueOf(ruleType)+", Time "+String.valueOf(ruleTime));
+        }
+
     }
 
     public int resetAgentAlarms(int agentID) {

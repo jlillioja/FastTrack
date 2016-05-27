@@ -11,4 +11,6 @@
     <string name="filter_by_agent">Filter By Agent</string>
     <string name="cancel">cancel</string>
     <string name="widgetIdKey">widget_id</string>
+    <string name="at_string">Reset at selected time</string>
+    <string name="after_string">Reset after selected time</string>
 </resources>

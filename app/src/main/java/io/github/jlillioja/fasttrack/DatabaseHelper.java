@@ -152,35 +152,41 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseContract
     }
 
     public String getAgentName(int agentID) {
-        return getProperty(Agent.TABLE_NAME, agentID, Agent.COLUMN_NAME_AGENT_NAME);
+        return getProperty(Agent.TABLE_NAME, Agent._ID, agentID, Agent.COLUMN_NAME_AGENT_NAME);
     }
 
     public int getAgentWidgetId(int agentId) {
-        return Integer.valueOf(getProperty(Agent.TABLE_NAME, agentId, Agent.COLUMN_NAME_WIDGETID));
+        return Integer.valueOf(getProperty(Agent.TABLE_NAME, Agent._ID, agentId, Agent.COLUMN_NAME_WIDGETID));
+    }
+
+    public int getWidgetAgent(int widgetId) {
+        String agentId = getProperty(Agent.TABLE_NAME, Agent.COLUMN_NAME_WIDGETID, widgetId, Agent._ID);
+        if (agentId != null) {return Integer.valueOf(getProperty(Agent.TABLE_NAME, Agent.COLUMN_NAME_WIDGETID, widgetId, Agent._ID));}
+        else {return 0;}
     }
 
     public int getAgentState(int agentId) {
-        return Integer.valueOf(getProperty(Agent.TABLE_NAME, agentId, Agent.COLUMN_NAME_STATE));
+        return Integer.valueOf(getProperty(Agent.TABLE_NAME, Agent._ID, agentId, Agent.COLUMN_NAME_STATE));
     }
 
     public int getRuleType(int ruleId) {
-        return Integer.valueOf(getProperty(Rule.TABLE_NAME, ruleId, Rule.COLUMN_NAME_TYPE));
+        return Integer.valueOf(getProperty(Rule.TABLE_NAME, Rule._ID, ruleId, Rule.COLUMN_NAME_TYPE));
     }
 
     public long getRuleTime(int ruleId) {
-        return Integer.valueOf(getProperty(Rule.TABLE_NAME, ruleId, Rule.COLUMN_NAME_TIME));
+        return Integer.valueOf(getProperty(Rule.TABLE_NAME, Rule._ID, ruleId, Rule.COLUMN_NAME_TIME));
     }
 
     public int getRuleAgent(int ruleId) {
-        return Integer.valueOf(getProperty(Rule.TABLE_NAME, ruleId, Rule.COLUMN_NAME_AGENT));
+        return Integer.valueOf(getProperty(Rule.TABLE_NAME, Rule._ID, ruleId, Rule.COLUMN_NAME_AGENT));
     }
 
-    private String getProperty(String table, int id, String column) {
+    private String getProperty(String table, String field, int match, String column) {
         SQLiteDatabase db = getReadableDatabase();
 
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(table);
-        Cursor cursor = queryBuilder.query(db, new String[]{column}, Agent._ID + "=" + String.valueOf(id), null, null, null, null);
+        Cursor cursor = queryBuilder.query(db, new String[]{column}, field + "=" + String.valueOf(match), null, null, null, null);
         //Should return a result set with 1 row and 1 column
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
