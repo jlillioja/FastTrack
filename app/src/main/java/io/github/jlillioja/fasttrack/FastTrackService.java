@@ -34,7 +34,7 @@ public class FastTrackService extends IntentService {
         switch (action) {
             case ACTION_ALARM:
                 int ruleId = intent.getIntExtra("RuleId", 0);
-                Log.d(LOG_TAG, "Alarm "+String.valueOf(ruleId));
+                Log.d(LOG_TAG, "Alarm "+String.valueOf(ruleId)+" for Agent "+String.valueOf(agentID)+"!");
                 state = db.resetState(agentID);
                 break;
             case ACTION_CLICK:

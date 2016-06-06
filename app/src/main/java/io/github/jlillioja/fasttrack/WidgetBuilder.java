@@ -55,7 +55,7 @@ public class WidgetBuilder {
         Intent intent = new Intent(context, FastTrackService.class);
         intent.setAction(FastTrackService.ACTION_CLICK);
         intent.putExtra(DatabaseContract.Agent._ID, agentId);
-        PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getService(context, agentId, intent, 0);
         views.setOnClickPendingIntent(R.id.widgetButton, pendingIntent);
 
         return views;

@@ -32,21 +32,20 @@ public class RuleJudge {
         return sInstance;
     }
 
-    public void setAlarm(int id) {
+    public void setAlarm(int ruleId) {
         DatabaseHelper db = DatabaseHelper.getInstance(context);
         Intent intent = new Intent(context, FastTrackService.class);
         intent.setAction(FastTrackService.ACTION_ALARM);
-        intent.putExtra(DatabaseContract.Agent._ID, db.getRuleAgent(id));
-        intent.putExtra("RuleId", id);
-        PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);
-        int ruleType = db.getRuleType(id);
-        long ruleTime = db.getRuleTime(id);
+        intent.putExtra(DatabaseContract.Agent._ID, db.getRuleAgent(ruleId));
+        intent.putExtra(context.getString(R.string.key_rule_id), ruleId);
+        PendingIntent pendingIntent = PendingIntent.getService(context, ruleId, intent, 0);
+        int ruleType = db.getRuleType(ruleId);
+        long ruleTime = db.getRuleTime(ruleId);
 
         if (ruleType == AlarmManager.ELAPSED_REALTIME) {
             alarmManager.setExact(ruleType, SystemClock.elapsedRealtime()+ruleTime, pendingIntent);
-            Log.d(LOG_TAG, "Rule "+String.valueOf(id)+": Type "+String.valueOf(ruleType)+", Time "+String.valueOf(ruleTime));
+            Log.d(LOG_TAG, "Rule "+String.valueOf(ruleId)+": Type "+String.valueOf(ruleType)+", Time "+String.valueOf(ruleTime));
         }
-
     }
 
     public int resetAgentAlarms(int agentID) {

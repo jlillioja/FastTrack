@@ -13,4 +13,5 @@
     <string name="widgetIdKey">widget_id</string>
     <string name="at_string">Reset at selected time</string>
     <string name="after_string">Reset after selected time</string>
+    <string name="key_rule_id">RuleId</string>
 </resources>
